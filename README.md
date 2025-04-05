@@ -101,10 +101,4 @@ Add animations and transitions using Framer Motion or GSAP
 Implement dark/light theme switch
 
 ⭐ If you like this project, give it a star on GitHub!
-yaml
-Kopieren
-Bearbeiten
 
----
-
-Would you like me to generate a **PDF CV** based on this portfolio too? I can include your skills, pr
