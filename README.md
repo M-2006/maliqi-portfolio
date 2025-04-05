@@ -68,8 +68,8 @@ Bearbeiten
 ---
 
 ## 📷 Screenshots
-
-![Screenshot of Homepage](https://m-2006.github.io/maliqi-portfolio/assets/screenshot.png) <!-- Add screenshot if available -->
+*COMING SOON*
+## ![Screenshot of Homepage](https://m-2006.github.io/maliqi-portfolio/assets/screenshot.png) <!-- Add screenshot if available -->
 
 ---
 
