@@ -1,7 +1,7 @@
 import React from 'react';
 import { Globe, BookOpen, Code } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
-import Portfolio_Pic from '../Assets/Portfolio_Pic.jpeg';
+//import Portfolio_Pic from '../Assets/Portfolio_Pic.jpeg';
 
 
 export function PersonalInfo() {
@@ -13,7 +13,7 @@ export function PersonalInfo() {
         <div className="w-full md:w-1/3">
           <div className="relative group">
             <img
-              src={Portfolio_Pic}
+              src={""}
               alt="Profile"
               className="w-full rounded-lg shadow-md transition-transform duration-300 group-hover:scale-[1.02]"
             />
