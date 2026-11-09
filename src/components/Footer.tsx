@@ -1,102 +1,412 @@
-import React, { useState } from 'react';
+
+import React, { useEffect, useRef, useState } from 'react';
+
+import {
+  Github,
+  Linkedin,
+  Instagram,
+  Mail,
+  ShieldCheck,
+  FileText,
+  X,
+  ArrowUpRight,
+  Heart,
+} from 'lucide-react';
+
 import { useTheme } from '../context/ThemeContext';
-import { Link } from 'react-router-dom';
 
-export const Footer = () => {
-  const { theme } = useTheme();
-  const [isPrivacyModalOpen, setPrivacyModalOpen] = useState(false);
-  const [isTermsModalOpen, setTermsModalOpen] = useState(false);
+// Legal information
+const legalContent = {
+  privacy: {
+    title: 'Privacy Policy',
+    subtitle: 'How this portfolio handles information.',
+    Icon: ShieldCheck,
+    sections: [
+      {
+        title: '1. Introduction',
+        text: 'This portfolio belongs to Muhamet Maliqi. This policy explains how information may be handled when you visit the website.',
+      },
+      {
+        title: '2. Information Collection',
+        text: 'The portfolio does not currently provide account registration or a contact submission form. When you visit the website, your hosting provider may process technical information required to deliver the website.',
+      },
+      {
+        title: '3. Project Data',
+        text: 'The projects section may retrieve project information from a JSON file hosted through GitHub Pages. Your browser makes a request to retrieve this information.',
+      },
+      {
+        title: '4. Cookies and Tracking',
+        text: 'This portfolio should only be described as cookie-free or tracking-free if no analytics, tracking scripts or other cookie-based services are integrated. Check the actual website configuration for any such services.',
+      },
+      {
+        title: '5. Third-Party Services',
+        text: 'This website may link to external platforms such as GitHub, LinkedIn, Instagram and WhatsApp. When you visit these services, their own privacy policies and practices apply.',
+      },
+      {
+        title: '6. Contact',
+        text: 'For questions regarding this policy, you can contact Muhamet Maliqi at muhametmaliqi@icloud.com.',
+      },
+    ],
+  },
 
-  const togglePrivacyModal = () => setPrivacyModalOpen(!isPrivacyModalOpen);
-  const toggleTermsModal = () => setTermsModalOpen(!isTermsModalOpen);
+  terms: {
+    title: 'Terms of Service',
+    subtitle: 'Terms for using this personal portfolio.',
+    Icon: FileText,
+    sections: [
+      {
+        title: '1. Acceptance of Terms',
+        text: 'By accessing this website, you agree to use it responsibly and in accordance with these terms.',
+      },
+      {
+        title: '2. Website Purpose',
+        text: 'This website is a personal portfolio created to present projects, technical skills, educational background and professional experience.',
+      },
+      {
+        title: '3. Intellectual Property',
+        text: 'Unless otherwise stated, the website design, original written content, graphics and project materials belong to their respective owners. They may not be reproduced or redistributed without appropriate permission.',
+      },
+      {
+        title: '4. External Links',
+        text: 'This website may contain links to external websites and services. I am not responsible for the content, availability or policies of third-party websites.',
+      },
+      {
+        title: '5. Accuracy and Availability',
+        text: 'Information is provided for general informational purposes. Project descriptions, technologies and other details may change. No guarantee is made that the website will always be available or error-free.',
+      },
+      {
+        title: '6. Changes to These Terms',
+        text: 'These terms may be updated when website functionality or content changes. The latest version will be published on this page.',
+      },
+      {
+        title: '7. Contact',
+        text: 'For questions regarding these terms, contact muhametmaliqi@icloud.com.',
+      },
+    ],
+  },
+};
+
+type LegalModalType = keyof typeof legalContent;
+
+const socialLinks = [
+  {
+    label: 'GitHub',
+    href: 'https://github.com/M-2006/',
+    Icon: Github,
+  },
+  {
+    label: 'LinkedIn',
+    href: 'https://www.linkedin.com/in/muhamet-maliqi-77825a299/',
+    Icon: Linkedin,
+  },
+  {
+    label: 'Instagram',
+    href: 'https://www.instagram.com/muhamet_meti/',
+    Icon: Instagram,
+  },
+];
+
+// Reusable Legal Modal
+function LegalModal({
+  type,
+  onClose,
+  isDark,
+}: {
+  type: LegalModalType;
+  onClose: () => void;
+  isDark: boolean;
+}) {
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+
+  const content = legalContent[type];
+
+  useEffect(() => {
+    if (!content) return;
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
+    closeButtonRef.current?.focus();
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        onClose();
+      }
+
+      // Keep keyboard navigation inside the modal.
+      if (event.key === 'Tab') {
+        const elements = dialogRef.current?.querySelectorAll<HTMLElement>(
+          'a[href], button:not([disabled])'
+        );
+
+        if (!elements?.length) return;
+
+        const first = elements[0];
+        const last = elements[elements.length - 1];
+
+        if (event.shiftKey && document.activeElement === first) {
+          event.preventDefault();
+          last.focus();
+        } else if (
+          !event.shiftKey &&
+          document.activeElement === last
+        ) {
+          event.preventDefault();
+          first.focus();
+        }
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [content, onClose]);
+
+  if (!content) return null;
+
+  const { title, subtitle, Icon, sections } = content;
 
   return (
-    <footer
-    className={`py-8 mt-12 text-center text-sm font-medium transition-all ${
-      theme === 'dark'
-        ? 'bg-gray-900 text-gray-400 border-t border-gray-700'
-        : 'bg-gray-100 text-gray-700 border-t border-gray-300'
-    }`}
+    <div
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm animate-in fade-in duration-200"
+      onMouseDown={(event) => {
+        if (event.target === event.currentTarget) onClose();
+      }}
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <p className="text-lg font-semibold">&copy; {new Date().getFullYear()} Muhamet Maliqi</p>
-        <p className="text-sm mt-1">Crafted with passion. All rights reserved.</p>
-        
-        {/* Footer Links */}
-        <div className="flex justify-center space-x-6 mt-6">
+      <div
+        ref={dialogRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="legal-modal-title"
+        aria-describedby="legal-modal-description"
+        className={`relative flex max-h-[85vh] w-full max-w-2xl flex-col overflow-hidden rounded-2xl border shadow-2xl ${
+          isDark
+            ? 'border-gray-700 bg-gray-900 text-white'
+            : 'border-gray-200 bg-white text-gray-900'
+        }`}
+      >
+        {/* Modal Header */}
+        <div
+          className={`flex shrink-0 items-center justify-between border-b p-6 ${
+            isDark ? 'border-gray-700' : 'border-gray-200'
+          }`}
+        >
+          <div className="flex items-center gap-4">
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-500/10">
+              <Icon className="h-6 w-6 text-blue-500" />
+            </div>
+
+            <div>
+              <h2
+                id="legal-modal-title"
+                className="text-xl font-bold md:text-2xl"
+              >
+                {title}
+              </h2>
+
+              <p
+                id="legal-modal-description"
+                className={`mt-1 text-xs ${
+                  isDark ? 'text-gray-400' : 'text-gray-500'
+                }`}
+              >
+                {subtitle}
+              </p>
+            </div>
+          </div>
+
           <button
-            onClick={togglePrivacyModal}
-            className={`transition-colors hover:text-blue-500 ${
-              theme === 'dark' ? 'text-gray-400' : 'text-gray-600'
+            ref={closeButtonRef}
+            type="button"
+            onClick={onClose}
+            aria-label="Close modal"
+            className={`rounded-lg p-2 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${
+              isDark
+                ? 'text-gray-400 hover:bg-gray-800 hover:text-white'
+                : 'text-gray-500 hover:bg-gray-100 hover:text-gray-900'
             }`}
           >
-            Privacy Policy
+            <X className="h-5 w-5" />
           </button>
-          <button
-            onClick={toggleTermsModal}
-            className={`transition-colors hover:text-blue-500 ${
-              theme === 'dark' ? 'text-gray-400' : 'text-gray-600'
+        </div>
+
+        {/* Modal Content */}
+        <div className="overflow-y-auto p-6">
+          <div className="space-y-7">
+            {sections.map(({ title: sectionTitle, text }, index) => (
+              <section key={sectionTitle}>
+                <h3 className="mb-2 flex items-center gap-2 font-semibold">
+                  <span className="text-sm font-bold text-blue-500">
+                    {String(index + 1).padStart(2, '0')}.
+                  </span>
+
+                  {sectionTitle.replace(/^\d+\.\s*/, '')}
+                </h3>
+
+                <p
+                  className={`text-sm leading-7 ${
+                    isDark ? 'text-gray-400' : 'text-gray-600'
+                  }`}
+                >
+                  {text}
+                </p>
+              </section>
+            ))}
+          </div>
+        </div>
+
+        {/* Modal Footer */}
+        <div
+          className={`flex shrink-0 items-center justify-between border-t px-6 py-4 ${
+            isDark ? 'border-gray-700' : 'border-gray-200'
+          }`}
+        >
+          <span
+            className={`text-xs ${
+              isDark ? 'text-gray-500' : 'text-gray-400'
             }`}
           >
-            Terms of Service
+            Muhamet Maliqi
+          </span>
+
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-lg bg-blue-600 px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+          >
+            Close
           </button>
         </div>
       </div>
+    </div>
+  );
+}
 
-      {/* Privacy Policy Modal */}
-      {isPrivacyModalOpen && (
-        <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
-          <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg max-w-md w-full">
-            <h1 className="text-3xl font-bold mb-4">Privacy Policy</h1>
-            <div className="space-y-4">
-              <h2 className="text-xl font-semibold">1. Introduction</h2>
-              <p>We respect your privacy and are committed to protecting it.</p>
-              <h2 className="text-xl font-semibold">2. No Data Collection</h2>
-              <p>We do not collect, store, or share any personal data.</p>
-              <h2 className="text-xl font-semibold">3. Cookies and Tracking</h2>
-              <p>We do not use tracking technologies.</p>
-              <h2 className="text-xl font-semibold">4. Third-Party Services</h2>
-              <p>No third-party data collection integrations.</p>
-              <h2 className="text-xl font-semibold">5. Contact</h2>
-              <p>For inquiries, reach out to us.</p>
+export const Footer = () => {
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
+
+  const [activeModal, setActiveModal] = useState<LegalModalType | null>(null);
+
+  const footerClass = isDark
+    ? 'bg-gray-950 border-gray-800 text-gray-400'
+    : 'bg-gray-50 border-gray-200 text-gray-600';
+
+  const mutedClass = isDark
+    ? 'text-gray-500'
+    : 'text-gray-400';
+
+  return (
+    <>
+      <footer
+        className={`mt-20 border-t py-10 ${footerClass}`}
+      >
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+
+          {/* Footer Main Content */}
+          <div className="flex flex-col items-center justify-between gap-8 md:flex-row">
+
+            {/* Brand */}
+            <div className="text-center md:text-left">
+              <a
+                href="#top"
+                className={`text-xl font-bold tracking-tight transition-colors hover:text-blue-500 ${
+                  isDark ? 'text-white' : 'text-gray-900'
+                }`}
+              >
+                Muhamet Maliqi<span className="text-blue-500">.</span>
+              </a>
+
+              <p className="mt-2 text-sm">
+                Developer. Problem Solver. Quality Enthusiast.
+              </p>
+
+              <p className={`mt-2 text-xs ${mutedClass}`}>
+                © {new Date().getFullYear()} Muhamet Maliqi.
+                All rights reserved.
+              </p>
             </div>
-            <button
-              onClick={togglePrivacyModal}
-              className="mt-4 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition"
-            >
-              Close
-            </button>
+
+            {/* Social Links */}
+            <div className="flex items-center gap-3">
+              {socialLinks.map(({ label, href, Icon }) => (
+                <a
+                  key={label}
+                  href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={`Visit my ${label} profile`}
+                  className={`flex h-11 w-11 items-center justify-center rounded-xl border transition-all duration-300 hover:-translate-y-1 hover:border-blue-500 hover:text-blue-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${
+                    isDark
+                      ? 'border-gray-700 bg-gray-900 text-gray-400'
+                      : 'border-gray-200 bg-white text-gray-500'
+                  }`}
+                >
+                  <Icon className="h-5 w-5" />
+                </a>
+              ))}
+            </div>
+          </div>
+
+          {/* Divider */}
+          <div
+            className={`my-8 border-t ${
+              isDark ? 'border-gray-800' : 'border-gray-200'
+            }`}
+          />
+
+          {/* Footer Bottom */}
+          <div className="flex flex-col items-center justify-between gap-5 text-center sm:flex-row">
+            {/* Legal Links */}
+            <div className="flex flex-wrap justify-center gap-x-6 gap-y-3">
+              <button
+                type="button"
+                onClick={() => setActiveModal('privacy')}
+                className="text-sm transition-colors hover:text-blue-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+              >
+                Privacy Policy
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setActiveModal('terms')}
+                className="text-sm transition-colors hover:text-blue-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+              >
+                Terms of Service
+              </button>
+
+              <a
+                href="mailto:muhametmaliqi@icloud.com"
+                className="inline-flex items-center gap-1 text-sm transition-colors hover:text-blue-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+              >
+                Contact
+                <ArrowUpRight className="h-3 w-3" />
+              </a>
+            </div>
+
+            {/* Made With Love */}
+            <p className={`flex items-center gap-1.5 text-xs ${mutedClass}`}>
+              Designed & developed with
+              <Heart className="h-3.5 w-3.5 fill-red-500 text-red-500" />
+              by Muhamet
+            </p>
           </div>
         </div>
-      )}
+      </footer>
 
-      {/* Terms of Service Modal */}
-      {isTermsModalOpen && (
-        <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
-          <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg max-w-md w-full">
-            <h1 className="text-3xl font-bold mb-4">Terms of Service</h1>
-            <div className="space-y-4">
-              <h2 className="text-xl font-semibold">1. Acceptance of Terms</h2>
-              <p>By using our platform, you agree to these terms.</p>
-              <h2 className="text-xl font-semibold">2. No Data Collection</h2>
-              <p>We do not collect or process personal user data.</p>
-              <h2 className="text-xl font-semibold">3. User Responsibilities</h2>
-              <p>Use the platform responsibly.</p>
-              <h2 className="text-xl font-semibold">4. Limitation of Liability</h2>
-              <p>We are not responsible for issues arising from usage.</p>
-              <h2 className="text-xl font-semibold">5. Changes to Terms</h2>
-              <p>Terms may be updated periodically.</p>
-            </div>
-            <button
-              onClick={toggleTermsModal}
-              className="mt-4 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition"
-            >
-              Close
-            </button>
-          </div>
-        </div>
+      {/* Legal Modal */}
+      {activeModal && (
+        <LegalModal
+          type={activeModal}
+          onClose={() => setActiveModal(null)}
+          isDark={isDark}
+        />
       )}
-    </footer>
+    </>
   );
 };
 

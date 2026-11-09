@@ -1,94 +1,358 @@
-import React, { useState } from 'react';
+
+import { useEffect, useRef, useState } from 'react';
+
+import {
+  Award,
+  Network,
+  Code2,
+  ShieldCheck,
+  Database,
+  ExternalLink,
+  X,
+  ArrowUpRight,
+  FileCheck,
+} from 'lucide-react';
+
 import { useTheme } from '../context/ThemeContext';
 
+// Certificate collection
 const certificates = [
-    {
-        title: 'CCNAv7: Introduction to Networks',
-        url: 'https://drive.google.com/file/d/1hcbkGB7iXrgIeg9q8ag0uRq6PF42TpIT/preview',
-    },
-    {
-        title: 'MERN FULL STACK - Certificate',
-        url: 'https://drive.google.com/file/d/1rmSytpBYdN8lnX1UeR0zTRic3Q_gBn2d/preview',
-    },
-    {
-        title: 'Cybersecurity Essentials - Certificate',
-        url: 'https://drive.google.com/file/d/1EJOtzkx0pcoSND59EwVZbCoPQ5wcc1pK/preview',
-    },
-    {
-        title: 'IoT Fundamentals - Big Data',
-        url: 'https://drive.google.com/file/d/10dHatzcqueRuCqG2omSqKPw5fz5UXaTm/preview',
-    },
+  {
+    id: 'ccna',
+    title: 'CCNAv7: Introduction to Networks',
+    category: 'Networking',
+    description:
+      'Fundamentals of networking, network devices, IP addressing and network communication.',
+    Icon: Network,
+    url: 'https://drive.google.com/file/d/1hcbkGB7iXrgIeg9q8ag0uRq6PF42TpIT/preview',
+  },
+  {
+    id: 'mern',
+    title: 'MERN Full Stack Development',
+    category: 'Web Development',
+    description:
+      'Full-stack web development concepts using MongoDB, Express.js, React and Node.js.',
+    Icon: Code2,
+    url: 'https://drive.google.com/file/d/1rmSytpBYdN8lnX1UeR0zTRic3Q_gBn2d/preview',
+  },
+  {
+    id: 'cybersecurity',
+    title: 'Cybersecurity Essentials',
+    category: 'Cybersecurity',
+    description:
+      'Fundamental cybersecurity concepts, digital threats, security principles and protection.',
+    Icon: ShieldCheck,
+    url: 'https://drive.google.com/file/d/1EJOtzkx0pcoSND59EwVZbCoPQ5wcc1pK/preview',
+  },
+  {
+    id: 'iot',
+    title: 'IoT Fundamentals: Big Data',
+    category: 'IoT & Data',
+    description:
+      'Exploring Internet of Things fundamentals and the role of big data in connected systems.',
+    Icon: Database,
+    url: 'https://drive.google.com/file/d/10dHatzcqueRuCqG2omSqKPw5fz5UXaTm/preview',
+  },
 ];
 
-const Certificates: React.FC = () => {
-    const { theme } = useTheme();
-    const [showModal, setShowModal] = useState(false);
-    const [selectedPdfUrl, setSelectedPdfUrl] = useState('');
+type Certificate = (typeof certificates)[number];
 
-    const handleShowModal = (url: string) => {
-        setSelectedPdfUrl(url);
-        setShowModal(true);
+// Reusable certificate modal
+function CertificateModal({
+  certificate,
+  onClose,
+  isDark,
+}: {
+  certificate: Certificate;
+  onClose: () => void;
+  isDark: boolean;
+}) {
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    const previousFocus = document.activeElement;
+    const previousOverflow = document.body.style.overflow;
+
+    document.body.style.overflow = 'hidden';
+    closeButtonRef.current?.focus();
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        onClose();
+      }
+
+      // Keep keyboard navigation inside the dialog.
+      if (event.key === 'Tab') {
+        const elements = dialogRef.current?.querySelectorAll<HTMLElement>(
+          'button:not([disabled]), a[href], iframe'
+        );
+
+        if (!elements?.length) return;
+
+        const first = elements[0];
+        const last = elements[elements.length - 1];
+
+        if (event.shiftKey && document.activeElement === first) {
+          event.preventDefault();
+          last.focus();
+        } else if (
+          !event.shiftKey &&
+          document.activeElement === last
+        ) {
+          event.preventDefault();
+          first.focus();
+        }
+      }
     };
 
-    const handleCloseModal = () => {
-        setShowModal(false);
-        setSelectedPdfUrl('');
+    document.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener('keydown', handleKeyDown);
+      if (previousFocus instanceof HTMLElement) {
+        previousFocus.focus();
+      }
     };
+  }, [onClose]);
 
-    return (
-        <section className="mb-8">
-            <h3 className={`text-3xl font-bold mb-4 text-center ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
-                Certificates
-            </h3>
-            <div className={`text-lg mb-4 text-center ${theme === 'dark' ? 'text-gray-300' : 'text-gray-800'}`}>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                {certificates.map((certificate, index) => (
-                    <div key={index} className={`rounded-lg border shadow-md transition-transform duration-200 hover:scale-105 ${
-                        theme === 'dark' ? 'bg-gray-800 text-white border-gray-600' : 'bg-white text-gray-800 border-gray-400'
-                    }`}>
-                        <div className={`p-4`}>
-                            <h4 className="text-xl font-semibold mb-2 text-center">{certificate.title}</h4>
-                            <button
-                                onClick={() => handleShowModal(certificate.url)}
-                                className={`w-full px-4 py-2 rounded transition ${
-                                    theme === 'dark' ? 'bg-blue-600 text-white hover:bg-blue-700' : 'bg-blue-500 text-white hover:bg-blue-600'
-                                }`}
-                            >
-                                Show Certificate
-                            </button>
-                        </div>
-                    </div>
-                ))}
+  return (
+    <div
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/75 p-3 backdrop-blur-sm sm:p-6"
+      onMouseDown={(event) => {
+        if (event.target === event.currentTarget) {
+          onClose();
+        }
+      }}
+    >
+      <div
+        ref={dialogRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="certificate-modal-title"
+        className={`flex max-h-[95vh] w-full max-w-5xl flex-col overflow-hidden rounded-2xl border shadow-2xl ${
+          isDark
+            ? 'border-gray-700 bg-gray-900 text-white'
+            : 'border-gray-200 bg-white text-gray-900'
+        }`}
+      >
+        {/* Modal Header */}
+        <div
+          className={`flex shrink-0 items-center justify-between gap-4 border-b p-4 sm:p-5 ${
+            isDark ? 'border-gray-700' : 'border-gray-200'
+          }`}
+        >
+          <div className="flex min-w-0 items-center gap-3">
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-500/10">
+              <Award className="h-6 w-6 text-blue-500" />
             </div>
 
-            {/* Modal */}
-            {showModal && (
-                <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-                    <div className={`bg-white rounded-lg shadow-lg p-4 w-full max-w-4xl ${
-                        theme === 'dark' ? 'bg-gray-800' : 'bg-white'
-                    }`}>
-                        <button
-                            onClick={handleCloseModal}
-                            className={`mb-4 px-4 py-2 rounded ${
-                                theme === 'dark' ? 'bg-red-600 text-white hover:bg-red-700' : 'bg-red-500 text-white hover:bg-red-600'
-                            }`}
-                        >
-                            Close
-                        </button>
-                        <div className="border border-gray-400">
-                            <iframe
-                                src={selectedPdfUrl}
-                                className="w-full h-[70vh] md:h-[80vh]"
-                                style={{ border: 'none' }}
-                                title="Certificate"
-                            />
-                        </div>
-                    </div>
+            <div className="min-w-0">
+              <h2
+                id="certificate-modal-title"
+                className="truncate text-base font-bold sm:text-xl"
+              >
+                {certificate.title}
+              </h2>
+
+              <p className="text-xs text-gray-500">
+                {certificate.category}
+              </p>
+            </div>
+          </div>
+
+          <button
+            ref={closeButtonRef}
+            type="button"
+            onClick={onClose}
+            aria-label="Close certificate preview"
+            className={`shrink-0 rounded-lg p-2 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${
+              isDark
+                ? 'text-gray-400 hover:bg-gray-800 hover:text-white'
+                : 'text-gray-500 hover:bg-gray-100 hover:text-gray-900'
+            }`}
+          >
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+
+        {/* PDF Viewer */}
+        <div
+          className={`min-h-0 flex-1 p-2 sm:p-4 ${
+            isDark ? 'bg-gray-950' : 'bg-gray-100'
+          }`}
+        >
+          <iframe
+            src={certificate.url}
+            title={`Certificate preview: ${certificate.title}`}
+            className="h-[65vh] min-h-[350px] w-full rounded-lg border-0 bg-white sm:h-[72vh]"
+            loading="lazy"
+            allow="autoplay"
+          />
+        </div>
+
+        {/* Modal Footer */}
+        <div
+          className={`flex shrink-0 flex-col items-center justify-between gap-3 border-t p-4 sm:flex-row ${
+            isDark ? 'border-gray-700' : 'border-gray-200'
+          }`}
+        >
+          <p className="text-xs text-gray-500">
+            Having trouble viewing the certificate?
+          </p>
+
+          <div className="flex w-full gap-2 sm:w-auto">
+            <a
+              href={certificate.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex flex-1 items-center justify-center gap-2 rounded-lg border border-gray-500/30 px-4 py-2.5 text-sm font-medium transition-colors hover:bg-gray-500/10 sm:flex-none"
+            >
+              Open in Google Drive
+              <ExternalLink className="h-4 w-4" />
+            </a>
+
+            <button
+              type="button"
+              onClick={onClose}
+              className="rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-blue-700"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default function Certificates() {
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
+
+  const [selectedCertificate, setSelectedCertificate] =
+    useState<Certificate | null>(null);
+
+  const headingClass = isDark
+    ? 'text-white'
+    : 'text-gray-900';
+
+  const descriptionClass = isDark
+    ? 'text-gray-400'
+    : 'text-gray-600';
+
+  const cardClass = isDark
+    ? 'border-gray-700 bg-gray-900 hover:border-blue-500/60'
+    : 'border-gray-200 bg-white hover:border-blue-400';
+
+  return (
+    <>
+      <section
+        id="certificates"
+        aria-labelledby="certificates-title"
+        className="mb-16 scroll-mt-24"
+      >
+        {/* Section Heading */}
+        <div className="mb-8">
+          <p className="mb-2 text-sm font-semibold uppercase tracking-[0.2em] text-blue-500">
+            Learning & Development
+          </p>
+
+          <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
+            <div>
+              <h2
+                id="certificates-title"
+                className={`mb-3 text-3xl font-bold tracking-tight md:text-4xl ${headingClass}`}
+              >
+                Certifications
+              </h2>
+
+              <p className={`max-w-2xl text-sm leading-7 md:text-base ${descriptionClass}`}>
+                Professional training and certifications reflecting
+                my continuous learning in networking, web development,
+                cybersecurity and emerging technologies.
+              </p>
+            </div>
+
+            <div
+              className={`flex w-fit items-center gap-2 rounded-full px-4 py-2 text-sm font-medium ${
+                isDark
+                  ? 'bg-blue-500/10 text-blue-400'
+                  : 'bg-blue-50 text-blue-700'
+              }`}
+            >
+              <FileCheck className="h-4 w-4" />
+              {certificates.length} Certificates
+            </div>
+          </div>
+        </div>
+
+        {/* Certificate Cards */}
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
+          {certificates.map(({ id, title, category, description, Icon }) => (
+            <article
+              key={id}
+              className={`group flex h-full flex-col rounded-2xl border p-5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl motion-reduce:transform-none motion-reduce:transition-none ${cardClass}`}
+            >
+              {/* Icon and Category */}
+              <div className="mb-5 flex items-center justify-between gap-2">
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-500/10 transition-transform duration-300 group-hover:scale-110">
+                  <Icon
+                    className="h-6 w-6 text-blue-500"
+                    aria-hidden="true"
+                  />
                 </div>
-            )}
-        </section>
-    );
-};
 
-export default Certificates;
+                <span
+                  className={`rounded-full px-3 py-1 text-xs font-semibold ${
+                    isDark
+                      ? 'bg-gray-800 text-blue-400'
+                      : 'bg-blue-50 text-blue-700'
+                  }`}
+                >
+                  {category}
+                </span>
+              </div>
+
+              {/* Certificate Information */}
+              <h3 className={`mb-3 text-lg font-bold leading-snug ${headingClass}`}>
+                {title}
+              </h3>
+
+              <p className={`mb-6 flex-1 text-sm leading-6 ${descriptionClass}`}>
+                {description}
+              </p>
+
+              {/* View Certificate */}
+              <button
+                type="button"
+                onClick={() =>
+                  setSelectedCertificate(
+                    certificates.find((item) => item.id === id) ?? null,
+                  )
+                }
+                className="flex w-full items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-3 text-sm font-semibold text-white transition-all duration-300 hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+              >
+                View Certificate
+                <ArrowUpRight
+                  className="h-4 w-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+                  aria-hidden="true"
+                />
+              </button>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      {/* Certificate Preview Modal */}
+      {selectedCertificate && (
+        <CertificateModal
+          certificate={selectedCertificate}
+          onClose={() => setSelectedCertificate(null)}
+          isDark={isDark}
+        />
+      )}
+    </>
+  );
+}
